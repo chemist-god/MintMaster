@@ -1,31 +1,43 @@
 import { Contract } from "ethers";
-import { ensureEthereumAvailable, getERC20Contract } from ".";
+import { ensureEthereumAvailable, getNftContract } from ".";
 import { handleErrorMessage } from "@/lib/utils";
 
 export const getName = async () => {
     await ensureEthereumAvailable();
 
     try {
-        const contract: Contract = await getERC20Contract();
-        const name: string = await contract.name();
-
+        const contract: Contract = await getNftContract();
+        const name = await contract.name();
         return name;
-    } catch(error) {
+    } catch (error) {
         handleErrorMessage(error);
         throw error;
     }
 }
 
-export const transfer = async (to: string, amount: string) => {
+export const mintNFT = async (to: string, tokenId: bigint) =>{
     await ensureEthereumAvailable();
 
     try {
-        const contract: Contract = await getERC20Contract();
-        const tx = await contract.transfer(to, amount);
-        await tx.wait();
+        const contract: Contract = await getNftContract();
+        const tx = await contract.safeMint(to, tokenId);
+        const receipt = await tx.wait();
 
-        return tx;
-    } catch(error) {
+        return receipt;
+    } catch (error) {
+        handleErrorMessage(error);
+        throw error;
+    }
+}
+
+export const getContractOwner = async () => {
+    await ensureEthereumAvailable();
+
+    try {
+        const contract: Contract = await getNftContract();
+        const owner = await contract.owner();
+        return owner;
+    } catch (error) {
         handleErrorMessage(error);
         throw error;
     }
