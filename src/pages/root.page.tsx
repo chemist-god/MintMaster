@@ -2,12 +2,12 @@ import { Contract } from "ethers";
 import { useAccount } from "wagmi";
 import { useEffect, useState } from "react";
 import { useFetch } from "@/hooks/useFetch";
-import { getERC20Contract } from "@/services";
+import { getNftContract } from "@/services";
 import Wrapper from "@/components/shared/wrapper";
 import { getName } from "@/services/serviceFn";
 import { truncateAddr } from "@/lib/utils";
-import TransferForm from "@/components/shared/transfer-form";
 import { MdSignalWifiStatusbarConnectedNoInternet } from "react-icons/md";
+import MintForm from "@/components/nft/mint-form";
 
 export default function RootPage() {
   const { isConnected, address } = useAccount();
@@ -33,7 +33,7 @@ export default function RootPage() {
   // initialise contract
   useEffect(() => {
     const initContract = async () => {
-      const contractInstance: Contract = await getERC20Contract();
+      const contractInstance: Contract = await getNftContract();
       setContract(contractInstance);
     };
 
@@ -54,7 +54,13 @@ export default function RootPage() {
               </p>
             </div>
           </div>
-          <TransferForm />
+
+          <div className="flex flex-col gap-4 p-4 bg-card rounded-lg border">
+            <div className="bg-card/50 rounded-lg p-6">
+              <h2 className="text-lg font-medium mb-4">Mint New NFT</h2>
+              <MintForm />
+            </div>
+          </div>
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center h-full gap-3">
