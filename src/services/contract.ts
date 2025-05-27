@@ -1,7 +1,7 @@
 import type { Address } from "viem";
 
 export const erc20Contract = {
-    contractAddr: "0x7EF2e0048f5bAeDe046f6BF797943daF4ED8CB47" as Address,
+    contractAddr: "0xEf9f1ACE83dfbB8f559Da621f4aEA72C6EB10eBf" as Address,
     contractABI: [
         {
             "inputs": [
@@ -444,3 +444,85 @@ export const erc20Contract = {
         }
     ]
 }
+
+export const nftContract = {
+    contractAddr: "0x0498B7c793D7432Cd9dB27fb02fc9cfdBAfA1Fd3" as Address, 
+    contractABI: [
+        {
+            "inputs": [
+                {
+                    "internalType": "string",
+                    "name": "_tokenURI",
+                    "type": "string"
+                }
+            ],
+            "name": "mintNFT",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "tokenId",
+                    "type": "uint256"
+                }
+            ],
+            "name": "getCreator",
+            "outputs": [
+                {
+                    "internalType": "address",
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "tokenId",
+                    "type": "uint256"
+                }
+            ],
+            "name": "tokenURI",
+            "outputs": [
+                {
+                    "internalType": "string",
+                    "name": "",
+                    "type": "string"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": true,
+                    "internalType": "address",
+                    "name": "creator",
+                    "type": "address"
+                },
+                {
+                    "indexed": true,
+                    "internalType": "uint256",
+                    "name": "tokenId",
+                    "type": "uint256"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "string",
+                    "name": "tokenURI",
+                    "type": "string"
+                }
+            ],
+            "name": "NFTMinted",
+            "type": "event"
+        }
+    ]
+};
