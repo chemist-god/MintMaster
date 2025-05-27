@@ -1,15 +1,12 @@
-import { useState, useEffect } from "react";
+// 1. Remove unused NFTMetadata import since it's used in createAndUploadMetadata
+import { useState, useEffect, useCallback } from "react";
 import { useAccount } from "wagmi";
 import { toast } from "sonner";
 import { Loader } from "lucide-react";
 import { getContractOwner, mintNFT } from "@/services/serviceFn";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import {
-  uploadMetadata,
-  uploadToIPFS,
-  type NFTMetadata,
-} from "@/services/pinata";
+import { createAndUploadMetadata, uploadToIPFS } from "@/services/pinata";
 
 type uploadStatus = "idle" | "uploading" | "minting" | "success" | "error";
 
@@ -25,7 +22,7 @@ export default function MintForm() {
   const [status, setStatus] = useState<uploadStatus>("idle");
   const [uploadProgress, setUploadProgress] = useState("");
 
-  const checkOwnership = async () => {
+  const checkOwnership = useCallback(async () => {
     if (!address) return;
     try {
       const owner = await getContractOwner();
@@ -34,12 +31,11 @@ export default function MintForm() {
       console.error("Error checking contract owner", error);
       setIsOwner(false);
     }
-  };
+  }, [address]);
 
-  // checks ownership when the address changes
   useEffect(() => {
     checkOwnership();
-  }, [address]);
+  }, [checkOwnership]); // Now checkOwnership is properly memoized
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
@@ -92,18 +88,14 @@ export default function MintForm() {
       const imageUrl = await uploadToIPFS(file);
       setUploadProgress("Uploading metadata to IPFS...");
 
-      // Create and upload metadata
-      const metadata: NFTMetadata = {
+      await createAndUploadMetadata(imageUrl, { // Remove metadataUrl assignment since it's not used
         name,
-        description,
-        image: imageUrl,
-      };
-      await uploadMetadata(metadata);
+        description
+      });
 
       setUploadProgress("Minting NFT...");
       setStatus("minting");
 
-      // Mint NFT with specified token ID to recipient address
       await mintNFT(recipientAddress, BigInt(tokenIdNum));
 
       setStatus("success");
@@ -212,7 +204,7 @@ export default function MintForm() {
       {uploadProgress && (
         <div className="text-sm text-muted-foreground">{uploadProgress}</div>
       )}
-      
+
       <Button type="submit" disabled={isDisabled} className="w-full">
         {status === "uploading" || status === "minting" ? (
           <>
