@@ -68,4 +68,5 @@ export async function getERC20Contract(): Promise<Contract> {
       throw new Error("Failed to initialize the ERC20 contract.");
     }
   }
+export { getNftContract } from './nftService';
   

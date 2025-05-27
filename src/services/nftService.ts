@@ -9,7 +9,7 @@ interface NFTMintError {
     details?: unknown;
 }
 
-const getNftContract = async (): Promise<Contract> => {
+export const getNftContract = async (): Promise<Contract> => {
     const signer = await getSigner();
     return new Contract(
         nftContract.contractAddr,
@@ -70,4 +70,4 @@ export const getNFTDetails = async (tokenId: bigint) => {
             details: error
         } as NFTMintError;
     }
-}; 
+};
