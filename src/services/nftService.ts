@@ -18,32 +18,21 @@ export const getNftContract = async (): Promise<Contract> => {
     );
 };
 
-export const mintNFT = async (tokenURI: string) => {
+export const mintNFT = async (to: string, tokenId: bigint, tokenURI: string) => {
     await ensureEthereumAvailable();
 
     try {
         const contract: Contract = await getNftContract();
-        const tx = await contract.mintNFT(tokenURI);
+        const tx = await handleTransaction(contract.mintNFT(tokenURI));
         const receipt = await tx.wait();
-
-        // Get the NFTMinted event from the transaction receipt
-        const event = receipt.logs
-            .filter((log: any) => log.fragment?.name === 'NFTMinted')
-            .map((log: any) => log.args)[0];
-
-        return {
-            tokenId: event.tokenId,
-            creator: event.creator,
-            tokenURI: event.tokenURI,
-            transactionHash: receipt.hash
-        };
+        return receipt;
     } catch (error: unknown) {
         handleErrorMessage(error);
         throw {
             code: error instanceof Error ? error.message : 'MINT_ERROR',
             message: 'Failed to mint NFT',
             details: error
-        } as NFTMintError;
+        } as TransactionError;
     }
 };
 

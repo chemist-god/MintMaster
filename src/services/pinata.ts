@@ -98,9 +98,27 @@ export const createAndUploadMetadata = async (
             type: 'application/json'
         });
 
+        // Get presigned URL first
+        const urlResponse = await fetch(`${import.meta.env.VITE_SERVER_URL}/presigned_url`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!urlResponse.ok) {
+            throw new Error(`Failed to get upload URL: ${urlResponse.status}`);
+        }
+
+        const data = await urlResponse.json();
+        if (!data.url) {
+            throw new Error('Invalid response from server - no URL received');
+        }
+
+        // Use the presigned URL for upload
         const upload = await pinata.upload.public
             .file(metadataFile)
-            .url(import.meta.env.VITE_SERVER_URL);
+            .url(data.url);
 
         if (!upload.cid) {
             throw new Error('Metadata upload failed - no CID returned');
@@ -116,7 +134,6 @@ export const createAndUploadMetadata = async (
         throw new Error(error instanceof Error ? error.message : 'Failed to upload metadata to IPFS');
     }
 };
-
 export const uploadNFT = async (
     imageFile: File,
     metadata: Omit<NFTMetadata, 'image'>,
