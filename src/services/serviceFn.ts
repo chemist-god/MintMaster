@@ -32,7 +32,7 @@ const handleTransaction = async <T>(txPromise: Promise<T>, retries = 0): Promise
     }
 };
 
-const getNftContract = async (): Promise<Contract> => {
+export const getNftContract = async (): Promise<Contract> => {
     const signer = await getSigner();
     return new Contract(
         nftContract.contractAddr,
