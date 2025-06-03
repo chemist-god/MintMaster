@@ -1,8 +1,6 @@
-import { Contract } from "ethers";
 import { useAccount } from "wagmi";
 import { useEffect, useState } from "react";
 import { useFetch } from "@/hooks/useFetch";
-import { getNftContract } from "@/services";
 import Wrapper from "@/components/shared/wrapper";
 import { getName } from "@/services/serviceFn";
 import { truncateAddr } from "@/lib/utils";
@@ -12,7 +10,6 @@ import MintForm from "@/components/nft/mint-form";
 export default function RootPage() {
   const { isConnected, address } = useAccount();
   const [tokenName, setTokenName] = useState<string>("");
-  const [contract, setContract] = useState<Contract | null>(null);
 
   const {
     fn: getNameFn,
@@ -29,16 +26,6 @@ export default function RootPage() {
       setTokenName(name);
     }
   }, [name]);
-
-  // initialise contract
-  useEffect(() => {
-    const initContract = async () => {
-      const contractInstance: Contract = await getNftContract();
-      setContract(contractInstance);
-    };
-
-    initContract();
-  }, []);
 
   return (
     <Wrapper className="flex flex-col w-full h-[calc(100%-80px)] py-10 relative">
@@ -64,11 +51,11 @@ export default function RootPage() {
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center h-full gap-3">
-        <MdSignalWifiStatusbarConnectedNoInternet className="size-20 text-blue-500 z-50" />
-        <p className="text-lg font-normal text-blue-500">
-          No account connected
-        </p>
-      </div>
+          <MdSignalWifiStatusbarConnectedNoInternet className="size-20 text-blue-500 z-50" />
+          <p className="text-lg font-normal text-blue-500">
+            No account connected
+          </p>
+        </div>
       )}
     </Wrapper>
   );
