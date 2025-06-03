@@ -9,6 +9,29 @@ interface NFTMintError {
     details?: unknown;
 }
 
+interface TransactionError {
+    code: string;
+    message: string;
+    details?: unknown;
+}
+
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 2000; // 2 seconds
+
+const handleTransaction = async (txPromise: Promise<any>, retries = 0): Promise<any> => {
+    try {
+        return await txPromise;
+    } catch (error: unknown) {
+        if (retries < MAX_RETRIES &&
+            error instanceof Error &&
+            (error.message.includes('NETWORK_ERROR') || error.message.includes('TIMEOUT'))) {
+            await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+            return handleTransaction(txPromise, retries + 1);
+        }
+        throw error;
+    }
+};
+
 export const getNftContract = async (): Promise<Contract> => {
     const signer = await getSigner();
     return new Contract(
@@ -18,14 +41,25 @@ export const getNftContract = async (): Promise<Contract> => {
     );
 };
 
-export const mintNFT = async (to: string, tokenId: bigint, tokenURI: string) => {
+export const mintNFT = async (tokenURI: string) => {
     await ensureEthereumAvailable();
 
     try {
         const contract: Contract = await getNftContract();
         const tx = await handleTransaction(contract.mintNFT(tokenURI));
         const receipt = await tx.wait();
-        return receipt;
+
+        // Get the NFTMinted event from the transaction receipt
+        const event = receipt.logs
+            .filter((log: any) => log.fragment?.name === 'NFTMinted')
+            .map((log: any) => log.args)[0];
+
+        return {
+            tokenId: event.tokenId,
+            creator: event.creator,
+            tokenURI: event.tokenURI,
+            transactionHash: receipt.hash
+        };
     } catch (error: unknown) {
         handleErrorMessage(error);
         throw {
