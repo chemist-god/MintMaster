@@ -88,7 +88,7 @@ export default function MintForm() {
       const imageUrl = await uploadToIPFS(file);
       setUploadProgress("Uploading metadata to IPFS...");
 
-      await createAndUploadMetadata(imageUrl, { // Remove metadataUrl assignment since it's not used
+      const tokenURIString = await createAndUploadMetadata(imageUrl, {
         name,
         description
       });
@@ -96,7 +96,7 @@ export default function MintForm() {
       setUploadProgress("Minting NFT...");
       setStatus("minting");
 
-      await mintNFT(recipientAddress, BigInt(tokenIdNum));
+      await mintNFT(tokenURIString);
 
       setStatus("success");
       toast.success("NFT minted successfully!");
